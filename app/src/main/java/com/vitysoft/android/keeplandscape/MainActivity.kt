@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun checkPermission() {
-        val permissionsText: TextView
+        val textView: TextView
         var intentSettings: Intent
 
         if (!Settings.System.canWrite(this)) {
@@ -41,13 +41,13 @@ class MainActivity : AppCompatActivity() {
                 intentSettings.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 startActivity(intentSettings)
             }
-            permissionsText = findViewById<View>(R.id.permissions) as TextView
-            permissionsText.setText("Required permissions not granted! Please restart this app")
-            permissionsText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)
+            textView = findViewById<View>(R.id.textView) as TextView
+            textView.setText("Required permissions not granted! Please restart this app")
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)
         } else {
-            permissionsText = findViewById<View>(R.id.permissions) as TextView
-            permissionsText.text = ""
-            permissionsText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 0f)
+            textView = findViewById<View>(R.id.textView) as TextView
+            textView.text = ""
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 0f)
 
             forceLandscape(this)
             startKeepAliveService(this)
