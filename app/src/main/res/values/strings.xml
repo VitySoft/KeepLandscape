@@ -3,4 +3,6 @@
     <string name="service_channel_name">Service Notification</string>
     <string name="service_channel_description">The service is running to keep the device in landscape</string>
     <string name="service_description">Keeping the device in landscape. Touch to stop.</string>
+    <string name="request_permissions">Please select KeepLandscape and allow permissions first!</string>
+    <string name="no_permissions">Required permissions not granted! Please restart this app.</string>
 </resources>
