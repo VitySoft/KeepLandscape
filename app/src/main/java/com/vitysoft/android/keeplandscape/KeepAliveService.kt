@@ -4,10 +4,16 @@ import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.pm.ActivityInfo
+import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import android.view.View
+import android.view.WindowManager
 import androidx.core.app.NotificationCompat
+import android.view.WindowManager.LayoutParams as WinLayoutParams
+
 
 const val SERVICE_CHANNEL_ID = "service_channel"
 
@@ -16,7 +22,9 @@ class KeepAliveService : Service() {
     private var running = false
     private val receiver = StartLandscapeReceiver()
 
-    private var notification: Notification? = null
+    private val windowManager by lazy {
+        getSystemService(Context.WINDOW_SERVICE) as WindowManager
+    }
 
     override fun onBind(intent: Intent): IBinder? {
         return null
@@ -34,6 +42,7 @@ class KeepAliveService : Service() {
             running = true
             registerScreenOn() // 监听亮屏广播
             startForeground()
+            drawOverlay()
         }
         return START_STICKY
     }
@@ -56,9 +65,8 @@ class KeepAliveService : Service() {
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
-        notification = builder.build()
 
-        startForeground(1, notification)
+        startForeground(1, builder.build())
     }
 
     private fun createNotificationChannel() {
@@ -73,6 +81,37 @@ class KeepAliveService : Service() {
             val notificationManager: NotificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    // 画一个不可见的 Overlay，强制横向
+    // 空闲休眠后，LineageOS 18.1 上方向会自动变为竖向，导致scrcpy崩溃
+    private fun drawOverlay() {
+        val view = View(this)
+        view.setBackgroundColor(0x00000000)
+        val flags = WinLayoutParams.FLAG_NOT_FOCUSABLE or
+                WinLayoutParams.FLAG_NOT_TOUCH_MODAL or
+                WinLayoutParams.FLAG_LAYOUT_IN_SCREEN
+        val params = WinLayoutParams(
+            WinLayoutParams.WRAP_CONTENT,
+            WinLayoutParams.WRAP_CONTENT,
+            getOverlayType(),
+            flags,
+            PixelFormat.TRANSLUCENT
+        )
+        params.x = 0
+        params.y = 0
+        params.width = 0
+        params.height = 0
+        params.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
+        windowManager.addView(view, params)
+    }
+
+    private fun getOverlayType(): Int {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            WinLayoutParams.TYPE_SYSTEM_OVERLAY
+        } else {
+            WinLayoutParams.TYPE_APPLICATION_OVERLAY
         }
     }
 

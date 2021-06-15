@@ -2,9 +2,11 @@ package com.vitysoft.android.keeplandscape
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
+
 
 const val TAG = "KeepLandscape"
 
@@ -53,3 +55,10 @@ val Any.TAG: String
         return "KeepLandscape $name"
     }
 
+fun getScreenWidth(): Int {
+    return Resources.getSystem().displayMetrics.widthPixels
+}
+
+fun getScreenHeight(): Int {
+    return Resources.getSystem().displayMetrics.heightPixels
+}
