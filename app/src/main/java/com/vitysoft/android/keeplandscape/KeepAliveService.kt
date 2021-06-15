@@ -52,7 +52,6 @@ class KeepAliveService : Service() {
 
         val builder = NotificationCompat.Builder(this, SERVICE_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_landscape)
-            .setContentTitle(getString(R.string.app_name))
             .setContentText(getString(R.string.service_description))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
@@ -66,7 +65,7 @@ class KeepAliveService : Service() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val name = getString(R.string.service_channel_name)
             val descriptionText = getString(R.string.service_channel_description)
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val importance = NotificationManager.IMPORTANCE_NONE
             val channel = NotificationChannel(SERVICE_CHANNEL_ID, name, importance).apply {
                 description = descriptionText
             }

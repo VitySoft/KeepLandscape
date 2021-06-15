@@ -14,8 +14,10 @@ const val ACTION_STOP_LANDSCAPE = "com.vitysoft.android.intent.action.STOP_LANDS
 fun forceLandscape(context: Context) {
     Log.d(TAG, "forceLandscape")
     val cr = context.contentResolver
+    // 禁用自动旋转
+    Settings.System.putInt(cr, Settings.System.ACCELEROMETER_ROTATION, 0)
+    // 设置为横向
     Settings.System.putInt(cr, Settings.System.USER_ROTATION, 1)
-    Settings.System.putInt(cr, Settings.System.ACCELEROMETER_ROTATION, 1)
 }
 
 fun startKeepAliveService(context: Context) {
