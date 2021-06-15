@@ -1,9 +1,6 @@
 package com.vitysoft.android.keeplandscape
 
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.Service
+import android.app.*
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Color
@@ -54,8 +51,18 @@ class KeepAliveService : Service() {
                 .setAutoCancel(true)
             notification = builder.build()
         } else {
+            val i = Intent(this, StopActivity::class.java)
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            val pi = PendingIntent.getActivity(
+                this, 0, i,
+                PendingIntent.FLAG_UPDATE_CURRENT
+            )
+
             notification = Notification.Builder(this)
                 .setSmallIcon(R.drawable.ic_landscape)
+                .setContentTitle("KeepLandscape")
+                .setContentText("Keep the device in landscape")
+                .setContentIntent(pi)
                 .setOngoing(true)
                 .build()
         }
