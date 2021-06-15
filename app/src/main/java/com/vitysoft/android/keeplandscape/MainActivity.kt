@@ -52,11 +52,6 @@ class MainActivity : AppCompatActivity() {
             forceLandscape(this)
             startKeepAliveService(this)
             finish()
-
-//            Log.d("KeepLandscape", "sendBroadcast")
-//            val intent = Intent(ACTION_START_LANDSCAPE)
-//            intent.setClass(this, StartLandscapeReceiver::class.java)
-//            sendBroadcast(intent)
         }
     }
 }
