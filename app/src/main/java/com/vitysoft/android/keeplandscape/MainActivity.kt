@@ -60,20 +60,3 @@ class MainActivity : AppCompatActivity() {
         }
     }
 }
-
-fun forceLandscape(context: Context) {
-    Log.d("KeepLandscape", "forceLandscape")
-    val cr = context.contentResolver
-    Settings.System.putInt(cr, Settings.System.USER_ROTATION, 1)
-    Settings.System.putInt(cr, Settings.System.ACCELEROMETER_ROTATION, 1)
-}
-
-fun startKeepAliveService(context: Context) {
-    Log.d("KeepLandscape", "startKeepAliveService")
-    val service = Intent(context, KeepAliveService::class.java)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        context.startForegroundService(service)
-    } else {
-        context.startService(service)
-    }
-}

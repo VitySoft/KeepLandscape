@@ -23,13 +23,15 @@ class KeepAliveService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "KeepAliveService onStartCommand")
+        Log.d(TAG, "onStartCommand")
         if (intent != null && ACTION_STOP_LANDSCAPE == intent.action) {
+            Log.d(TAG, "stop service")
             stopSelf()
             return START_NOT_STICKY
         }
         if (!running) {
-            running = true;
+            Log.d(TAG, "start service")
+            running = true
             registerScreenOn() // 监听亮屏广播
             startForeground()
         }
@@ -48,7 +50,7 @@ class KeepAliveService : Service() {
         intent.action = ACTION_STOP_LANDSCAPE
         val pendingIntent: PendingIntent = PendingIntent.getService(this, 0, intent, 0)
 
-        var builder = NotificationCompat.Builder(this, SERVICE_CHANNEL_ID)
+        val builder = NotificationCompat.Builder(this, SERVICE_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_landscape)
             .setContentTitle(getString(R.string.app_name))
             .setContentText(getString(R.string.service_description))
@@ -75,8 +77,7 @@ class KeepAliveService : Service() {
         }
     }
 
-
     override fun onDestroy() {
-        unregisterReceiver(receiver);
+        unregisterReceiver(receiver)
     }
 }

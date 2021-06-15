@@ -7,10 +7,6 @@ import android.os.Build
 import android.provider.Settings
 import android.util.Log
 
-
-const val ACTION_START_LANDSCAPE = "com.vitysoft.android.intent.action.START_LANDSCAPE"
-const val ACTION_STOP_LANDSCAPE = "com.vitysoft.android.intent.action.STOP_LANDSCAPE"
-
 class StartLandscapeReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
@@ -19,11 +15,11 @@ class StartLandscapeReceiver : BroadcastReceiver() {
             && Intent.ACTION_SCREEN_ON != action
             && ACTION_START_LANDSCAPE != action
         ) {
-            Log.d("KeepLandscape", "StartLandscapeReceiver 未知Action: $action")
+            Log.d(TAG, "Unknown action: $action")
             return
         }
 
-        Log.d("KeepLandscape", "StartLandscapeReceiver Action: $action")
+        Log.d(TAG, "Action: $action")
 
         //  强制横向
         forceLandscape(context)
