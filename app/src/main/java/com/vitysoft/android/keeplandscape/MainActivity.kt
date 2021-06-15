@@ -42,7 +42,7 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intentSettings)
             }
             textView = findViewById<View>(R.id.textView) as TextView
-            textView.setText("Required permissions not granted! Please restart this app")
+            textView.text = "Required permissions not granted! Please restart this app"
             textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24f)
         } else {
             textView = findViewById<View>(R.id.textView) as TextView

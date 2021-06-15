@@ -1,16 +1,19 @@
 package com.vitysoft.android.keeplandscape
 
 import android.app.*
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
 import android.util.Log
+import androidx.core.app.NotificationCompat
 
+const val SERVICE_CHANNEL_ID = "service_channel"
 
 class KeepAliveService : Service() {
 
+    private var running = false
     private val receiver = StartLandscapeReceiver()
 
     private var notification: Notification? = null
@@ -19,10 +22,18 @@ class KeepAliveService : Service() {
         return null
     }
 
-    override fun onCreate() {
-        Log.d("KeepLandscape", "KeepAliveService onCreate")
-        registerScreenOn() // 监听亮屏广播
-        startForeground()
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "KeepAliveService onStartCommand")
+        if (intent != null && ACTION_STOP_LANDSCAPE == intent.action) {
+            stopSelf()
+            return START_NOT_STICKY
+        }
+        if (!running) {
+            running = true;
+            registerScreenOn() // 监听亮屏广播
+            startForeground()
+        }
+        return START_STICKY
     }
 
     private fun registerScreenOn() {
@@ -32,42 +43,38 @@ class KeepAliveService : Service() {
     }
 
     private fun startForeground() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-            val id = "my_channel_01"
-            val name: CharSequence = "default"
-            val description = "default"
-            val importance = NotificationManager.IMPORTANCE_NONE
-            val channel = NotificationChannel(id, name, importance)
-            channel.description = description
-            channel.enableLights(false)
-            channel.lightColor = Color.BLUE
-            channel.enableVibration(false)
-            channel.vibrationPattern = longArrayOf(100)
-            manager.createNotificationChannel(channel)
-            val builder = Notification.Builder(this, "my_channel_01")
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText("Background service running...")
-                .setAutoCancel(true)
-            notification = builder.build()
-        } else {
-            val i = Intent(this, StopActivity::class.java)
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            val pi = PendingIntent.getActivity(
-                this, 0, i,
-                PendingIntent.FLAG_UPDATE_CURRENT
-            )
+        createNotificationChannel()
+        val intent = Intent(this, KeepAliveService::class.java)
+        intent.action = ACTION_STOP_LANDSCAPE
+        val pendingIntent: PendingIntent = PendingIntent.getService(this, 0, intent, 0)
 
-            notification = Notification.Builder(this)
-                .setSmallIcon(R.drawable.ic_landscape)
-                .setContentTitle("KeepLandscape")
-                .setContentText("Keep the device in landscape")
-                .setContentIntent(pi)
-                .setOngoing(true)
-                .build()
-        }
+        var builder = NotificationCompat.Builder(this, SERVICE_CHANNEL_ID)
+            .setSmallIcon(R.drawable.ic_landscape)
+            .setContentTitle(getString(R.string.app_name))
+            .setContentText(getString(R.string.service_description))
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+        notification = builder.build()
+
         startForeground(1, notification)
     }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = getString(R.string.service_channel_name)
+            val descriptionText = getString(R.string.service_channel_description)
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(SERVICE_CHANNEL_ID, name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
 
     override fun onDestroy() {
         unregisterReceiver(receiver);

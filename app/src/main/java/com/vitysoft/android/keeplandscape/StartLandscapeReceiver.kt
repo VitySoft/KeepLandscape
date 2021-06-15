@@ -9,6 +9,7 @@ import android.util.Log
 
 
 const val ACTION_START_LANDSCAPE = "com.vitysoft.android.intent.action.START_LANDSCAPE"
+const val ACTION_STOP_LANDSCAPE = "com.vitysoft.android.intent.action.STOP_LANDSCAPE"
 
 class StartLandscapeReceiver : BroadcastReceiver() {
 
