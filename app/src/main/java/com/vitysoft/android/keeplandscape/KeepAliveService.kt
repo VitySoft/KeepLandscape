@@ -49,7 +49,7 @@ class KeepAliveService : Service() {
 
     private fun startLandscape() {
         Log.d(TAG, "start service")
-        registerScreenOn() // 监听亮屏广播
+        registerScreenOn()
         drawOverlay()
         startForeground()
     }
@@ -57,7 +57,7 @@ class KeepAliveService : Service() {
     private fun stopLandscape() {
         Log.d(TAG, "stop service")
 
-        // 恢复自动旋转
+        // Auto-rotate screen
         Settings.System.putInt(
             contentResolver,
             Settings.System.ACCELEROMETER_ROTATION, 1
@@ -113,8 +113,10 @@ class KeepAliveService : Service() {
         }
     }
 
-    // 画一个不可见的 Overlay，强制横向
-    // 空闲休眠后，LineageOS 18.1 上方向会自动变为竖向，导致scrcpy崩溃
+    // Draw an invisible Overlay to force the screen on landscape
+    // When the device goes to sleep mode, the screen orientation will
+    // automatically change to portrait on LineageOS 18.1(Android 11),
+    // causing scrcpy to crash.
     private fun drawOverlay() {
         if (overlay != null) {
             removeOverlay()

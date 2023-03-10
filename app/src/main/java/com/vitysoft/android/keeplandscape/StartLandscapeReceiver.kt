@@ -18,14 +18,15 @@ class StartLandscapeReceiver : BroadcastReceiver() {
             Log.d(TAG, "Unknown action: $action")
             return
         }
-
         Log.d(TAG, "Action: $action")
 
-        //  强制横向
+        // Write system settings ACCELEROMETER_ROTATION and USER_ROTATION
+        // to keep system dialogs on landscape
+        // Especially needed for ACTION_SCREEN_ON
         forceLandscape(context)
 
+        // Start KeepAliveService on ACTION_BOOT_COMPLETED
         if (Intent.ACTION_BOOT_COMPLETED == action) {
-            // 启动保活服务
             startKeepAliveService(context)
         }
     }

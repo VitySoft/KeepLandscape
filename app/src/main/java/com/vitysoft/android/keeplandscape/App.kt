@@ -15,14 +15,14 @@ const val ACTION_STOP_LANDSCAPE = "com.vitysoft.android.intent.action.STOP_LANDS
 fun forceLandscape(context: Context) {
     Log.d(TAG, "forceLandscape")
     val cr = context.contentResolver
-    // 禁用自动旋转
+    // Disable auto rotation
     Settings.System.putInt(cr, Settings.System.ACCELEROMETER_ROTATION, 0)
-    // 设置为横向
+    // Set the screen orientation to landscape
     Settings.System.putInt(cr, Settings.System.USER_ROTATION, 1)
 }
 
 fun startKeepAliveService(context: Context) {
-    Log.d(TAG, "startKeepAliveService")
+    Log.d(TAG, "start KeepAliveService")
     val service = Intent(context, KeepAliveService::class.java)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         context.startForegroundService(service)
@@ -31,6 +31,7 @@ fun startKeepAliveService(context: Context) {
     }
 }
 
+// Using class name for logging TAG
 val Any.TAG: String
     get() {
         var name: String
@@ -39,7 +40,7 @@ val Any.TAG: String
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N
                 && name.length > 23
             ) {
-                // 匿名类取后23个字符
+                // Using the last 23 characters for anonymous classes
                 name = name.substring(name.length - 23, name.length)
             }
         } else {
@@ -47,7 +48,7 @@ val Any.TAG: String
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N
                 && name.length > 23
             ) {
-                // 正常类，取前23个字符
+                // Using the first 23 characters for normal classes
                 name = name.substring(0, 23)
             }
         }
