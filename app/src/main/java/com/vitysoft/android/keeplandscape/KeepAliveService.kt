@@ -109,6 +109,7 @@ class KeepAliveService : Service() {
 
     private fun getOverlayType(): Int {
         return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            @Suppress("DEPRECATION")
             WinLayoutParams.TYPE_SYSTEM_OVERLAY
         } else {
             WinLayoutParams.TYPE_APPLICATION_OVERLAY
