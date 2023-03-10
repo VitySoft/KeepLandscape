@@ -1,6 +1,7 @@
 package com.vitysoft.android.keeplandscape
 
 import android.app.*
+import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -12,6 +13,7 @@ import android.util.Log
 import android.view.View
 import android.view.WindowManager
 import androidx.core.app.NotificationCompat
+import androidx.core.graphics.drawable.IconCompat
 import android.view.WindowManager.LayoutParams as WinLayoutParams
 
 
@@ -54,16 +56,20 @@ class KeepAliveService : Service() {
     }
 
     private fun startForeground() {
+
         createNotificationChannel()
+
         val intent = Intent(this, KeepAliveService::class.java)
         intent.action = ACTION_STOP_LANDSCAPE
-        val pendingIntent: PendingIntent = PendingIntent.getService(this, 0, intent, 0)
+        val pendingIntent: PendingIntent = PendingIntent.getService(this, 0, intent, FLAG_IMMUTABLE)
+        val icon = IconCompat.createWithResource(this, android.R.drawable.ic_delete)
+        val action = NotificationCompat.Action.Builder(icon, "Stop", pendingIntent).build()
 
         val builder = NotificationCompat.Builder(this, SERVICE_CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_landscape)
             .setContentText(getString(R.string.service_description))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setContentIntent(pendingIntent)
+            .addAction(action)
             .setAutoCancel(true)
 
         startForeground(1, builder.build())
