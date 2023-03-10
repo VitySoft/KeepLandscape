@@ -9,6 +9,7 @@ import android.content.pm.ActivityInfo
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -23,6 +24,7 @@ class KeepAliveService : Service() {
 
     private var running = false
     private val receiver = StartLandscapeReceiver()
+    private var overlay: View? = null
 
     private val windowManager by lazy {
         getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -35,24 +37,45 @@ class KeepAliveService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "onStartCommand")
         if (intent != null && ACTION_STOP_LANDSCAPE == intent.action) {
-            Log.d(TAG, "stop service")
-            stopSelf()
+            stopLandscape()
             return START_NOT_STICKY
         }
         if (!running) {
-            Log.d(TAG, "start service")
             running = true
-            registerScreenOn() // 监听亮屏广播
-            startForeground()
-            drawOverlay()
+            startLandscape()
         }
         return START_STICKY
+    }
+
+    private fun startLandscape() {
+        Log.d(TAG, "start service")
+        registerScreenOn() // 监听亮屏广播
+        drawOverlay()
+        startForeground()
+    }
+
+    private fun stopLandscape() {
+        Log.d(TAG, "stop service")
+
+        // 恢复自动旋转
+        Settings.System.putInt(
+            contentResolver,
+            Settings.System.ACCELEROMETER_ROTATION, 1
+        )
+
+        unregisterScreenOn()
+        removeOverlay()
+        stopSelf()
     }
 
     private fun registerScreenOn() {
         val filter = IntentFilter()
         filter.addAction(Intent.ACTION_SCREEN_ON)
         registerReceiver(receiver, filter)
+    }
+
+    private fun unregisterScreenOn() {
+        unregisterReceiver(receiver)
     }
 
     private fun startForeground() {
@@ -93,8 +116,11 @@ class KeepAliveService : Service() {
     // 画一个不可见的 Overlay，强制横向
     // 空闲休眠后，LineageOS 18.1 上方向会自动变为竖向，导致scrcpy崩溃
     private fun drawOverlay() {
-        val view = View(this)
-        view.setBackgroundColor(0x00000000)
+        if (overlay != null) {
+            removeOverlay()
+        }
+        overlay = View(this)
+        overlay!!.setBackgroundColor(0x00000000)
         val flags = WinLayoutParams.FLAG_NOT_FOCUSABLE or
                 WinLayoutParams.FLAG_NOT_TOUCH_MODAL or
                 WinLayoutParams.FLAG_LAYOUT_IN_SCREEN
@@ -110,7 +136,14 @@ class KeepAliveService : Service() {
         params.width = 0
         params.height = 0
         params.screenOrientation = ActivityInfo.SCREEN_ORIENTATION_USER_LANDSCAPE
-        windowManager.addView(view, params)
+        windowManager.addView(overlay, params)
+    }
+
+    private fun removeOverlay() {
+        if (overlay != null) {
+            windowManager.removeView(overlay)
+            overlay = null
+        }
     }
 
     private fun getOverlayType(): Int {
@@ -123,6 +156,6 @@ class KeepAliveService : Service() {
     }
 
     override fun onDestroy() {
-        unregisterReceiver(receiver)
+        Log.i(TAG, "onDestroy")
     }
 }
